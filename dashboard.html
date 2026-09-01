@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XBalance personal finance dashboard." />
+  <title>XBalance — Dashboard</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js"></script>
+</head>
+
+<body>
+  <div class="dashboard-shell">
+    <header class="topbar">
+      <a class="brand" href="dashboard.html" aria-label="XBalance dashboard">
+        <span class="brand-mark">X</span>
+        <span>XBalance</span>
+      </a>
+
+      <div class="topbar-actions">
+        <span id="user-email" class="user-email"></span>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="Toggle theme">
+          <span aria-hidden="true">◐</span>
+        </button>
+        <button id="signout-button" class="button button-secondary button-small" type="button">
+          Sign out
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page-header">
+        <div>
+          <p class="eyebrow">Overview</p>
+          <h1>Your financial dashboard</h1>
+          <p>Record every transaction and keep your spending in focus.</p>
+        </div>
+      </section>
+
+      <p id="dashboard-message" class="status-message" role="status" aria-live="polite"></p>
+
+      <section class="summary-grid" aria-label="Financial summary">
+        <article class="summary-card">
+          <span>Current balance</span>
+          <strong id="balance-total">$0.00</strong>
+        </article>
+
+        <article class="summary-card income">
+          <span>Total income</span>
+          <strong id="income-total">$0.00</strong>
+        </article>
+
+        <article class="summary-card expense">
+          <span>Total expenses</span>
+          <strong id="expense-total">$0.00</strong>
+        </article>
+      </section>
+
+      <section class="chart-grid" aria-label="Financial charts">
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <h2>Income vs. expenses</h2>
+              <p class="panel-subtitle">All recorded transactions</p>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="cashflow-chart" aria-label="Income versus expenses chart"></canvas>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <h2>Expense breakdown</h2>
+              <p class="panel-subtitle">By category</p>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="expense-chart" aria-label="Expense breakdown chart"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel">
+          <div class="form-header">
+            <div>
+              <h2 id="transaction-form-title">Add transaction</h2>
+              <p class="panel-subtitle">Record income or an expense.</p>
+            </div>
+          </div>
+
+          <form id="transaction-form">
+            <input id="transaction-id" type="hidden" />
+
+            <div class="form-grid">
+              <label>
+                Type
+                <select id="transaction-type" required>
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                </select>
+              </label>
+
+              <label>
+                Amount
+                <input id="transaction-amount" type="number" min="0.01" step="0.01" required placeholder="0.00" />
+              </label>
+
+              <label>
+                Category
+                <select id="transaction-category" required></select>
+              </label>
+
+              <label>
+                Payment method
+                <select id="transaction-payment-method">
+                  <option value="">No payment method</option>
+                </select>
+              </label>
+
+              <label>
+                Date
+                <input id="transaction-date" type="date" required />
+              </label>
+
+              <label class="full-span">
+                Description
+                <textarea id="transaction-description" maxlength="500" placeholder="Optional note"></textarea>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="submit">Save transaction</button>
+              <button id="cancel-transaction-edit" class="button button-secondary is-hidden" type="button">
+                Cancel edit
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel">
+          <div class="form-header">
+            <div>
+              <h2 id="category-form-title">Add category</h2>
+              <p class="panel-subtitle">Keep income and expense groups organized.</p>
+            </div>
+          </div>
+
+          <form id="category-form">
+            <input id="category-id" type="hidden" />
+
+            <div class="form-grid">
+              <label>
+                Name
+                <input id="category-name" type="text" maxlength="60" required placeholder="e.g. Dining" />
+              </label>
+
+              <label>
+                Type
+                <select id="category-type" required>
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                </select>
+              </label>
+
+              <label class="full-span">
+                Color
+                <input id="category-color" type="color" value="#10b981" required />
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="submit">Save category</button>
+              <button id="cancel-category-edit" class="button button-secondary is-hidden" type="button">
+                Cancel edit
+              </button>
+            </div>
+          </form>
+        </article>
+      </section>
+
+      <section class="data-grid">
+        <article class="panel">
+          <div class="form-header">
+            <div>
+              <h2 id="payment-form-title">Payment methods</h2>
+              <p class="panel-subtitle">Cash, cards, bank accounts, and wallets.</p>
+            </div>
+          </div>
+
+          <form id="payment-form">
+            <input id="payment-id" type="hidden" />
+
+            <div class="form-grid">
+              <label class="full-span">
+                Name
+                <input id="payment-name" type="text" maxlength="60" required placeholder="e.g. Visa Card" />
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="button button-primary" type="submit">Save payment method</button>
+              <button id="cancel-payment-edit" class="button button-secondary is-hidden" type="button">
+                Cancel edit
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel">
+          <h2>Quick guidance</h2>
+          <p class="panel-subtitle">
+            Categories can be edited until they are attached to transactions. Add a new category if you need to change a category’s income or expense type.
+          </p>
+        </article>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="table-heading">
+          <div>
+            <h2>Recent transactions</h2>
+            <p class="panel-subtitle">Newest entries appear first.</p>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Payment method</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th aria-label="Actions"></th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="data-grid">
+        <article class="panel table-panel">
+          <div class="table-heading">
+            <h2>Categories</h2>
+          </div>
+
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th aria-label="Actions"></th>
+                </tr>
+              </thead>
+              <tbody id="categories-table-body"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel table-panel">
+          <div class="table-heading">
+            <h2>Payment methods</h2>
+          </div>
+
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th aria-label="Actions"></th>
+                </tr>
+              </thead>
+              <tbody id="payment-methods-table-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
