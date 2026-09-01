@@ -971,11 +971,11 @@ function bindEvents() {
 
   document.addEventListener("click", handleTableAction);
 
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    if (!session) {
-      window.location.replace(pageUrl("index.html"));
-    }
-  });
+  supabaseClient.auth.onAuthStateChange((event) => {
+  if (event === "SIGNED_OUT") {
+    window.location.replace(pageUrl("index.html"));
+  }
+});
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
