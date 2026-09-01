@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XBalance personal finance tracking." />
+  <title>XBalance — Personal Finance</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="auth.js"></script>
+</head>
+
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-card" aria-labelledby="app-title">
+      <div class="auth-header">
+        <a class="brand" href="index.html" aria-label="XBalance home">
+          <span class="brand-mark">X</span>
+          <span>XBalance</span>
+        </a>
+
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="Toggle theme">
+          <span aria-hidden="true">◐</span>
+        </button>
+      </div>
+
+      <div class="auth-intro">
+        <p class="eyebrow">Personal finance, simplified</p>
+        <h1 id="app-title">Know where your money goes.</h1>
+        <p>Track income, expenses, categories, and payment methods in one private dashboard.</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Authentication options">
+        <button class="auth-tab is-active" type="button" data-auth-view="signin" role="tab">
+          Sign in
+        </button>
+        <button class="auth-tab" type="button" data-auth-view="signup" role="tab">
+          Create account
+        </button>
+      </div>
+
+      <p id="auth-message" class="status-message" role="status" aria-live="polite"></p>
+
+      <form id="signin-form" class="auth-form" novalidate>
+        <label>
+          Email
+          <input id="signin-email" type="email" autocomplete="email" required placeholder="you@example.com" />
+        </label>
+
+        <label>
+          Password
+          <input id="signin-password" type="password" autocomplete="current-password" required minlength="6" placeholder="••••••••" />
+        </label>
+
+        <button class="button button-primary button-full" type="submit">
+          Sign in
+        </button>
+      </form>
+
+      <form id="signup-form" class="auth-form is-hidden" novalidate>
+        <label>
+          Display name
+          <input id="signup-name" type="text" autocomplete="name" maxlength="60" placeholder="Your name" />
+        </label>
+
+        <label>
+          Email
+          <input id="signup-email" type="email" autocomplete="email" required placeholder="you@example.com" />
+        </label>
+
+        <label>
+          Password
+          <input id="signup-password" type="password" autocomplete="new-password" required minlength="6" placeholder="At least 6 characters" />
+        </label>
+
+        <button class="button button-primary button-full" type="submit">
+          Create account
+        </button>
+      </form>
+
+      <div class="divider"><span>or continue with</span></div>
+
+      <div class="oauth-buttons">
+        <button class="button button-secondary" type="button" data-provider="google">
+          Continue with Google
+        </button>
+        <button class="button button-secondary" type="button" data-provider="github">
+          Continue with GitHub
+        </button>
+      </div>
+
+      <p class="auth-footnote">
+        Your financial data is private and visible only to your account.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
