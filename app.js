@@ -61,6 +61,7 @@ function cacheElements() {
     "currency-select",
     "settings-currency-select",
     "signout-button",
+    "sidebar-user-name"
     "sidebar-user-email",
     "dashboard-message",
     "balance-total",
@@ -213,7 +214,7 @@ function switchView(viewName) {
   document.querySelectorAll(".view-panel").forEach((panel) => {
     panel.classList.toggle("is-hidden", panel.id !== `view-${view}`);
   });
-
+  
   document.querySelectorAll("[data-view-target]").forEach((button) => {
     const isActive = button.dataset.viewTarget === view;
     button.classList.toggle("is-active", isActive);
@@ -225,6 +226,10 @@ function switchView(viewName) {
 
   closeDrawer();
   window.scrollTo({ top: 0, behavior: "smooth" });
+
+  if (view === "dashboard") {
+  requestAnimationFrame(renderCharts);
+}
 }
 
 function openPrivacyModal() {
@@ -237,10 +242,33 @@ function closePrivacyModal() {
   document.body.classList.remove("modal-open");
 }
 
+function getDisplayName() {
+  return (
+    state.profile?.display_name?.trim() ||
+    state.user?.user_metadata?.display_name?.trim() ||
+    "Account"
+  );
+}
+
+function renderProfile() {
+  const displayName = getDisplayName();
+
+  elements["sidebar-user-name"].textContent = displayName;
+  elements["sidebar-user-email"].textContent =
+    state.user?.email || "No email available";
+
+  elements["settings-email"].textContent =
+    state.user?.email || "No email available";
+
+  elements["profile-display-name"].value = displayName;
+}
 async function requireAuthenticatedUser() {
   const {
-    data: { session }
+    data: { session },
+    error
   } = await supabaseClient.auth.getSession();
+
+  if (error) throw error;
 
   if (!session) {
     window.location.replace(pageUrl("index.html"));
@@ -248,8 +276,6 @@ async function requireAuthenticatedUser() {
   }
 
   state.user = session.user;
-  elements["sidebar-user-email"].textContent = state.user.email || "Signed in";
-  elements["settings-email"].textContent = state.user.email || "No email available";
   return true;
 }
 
@@ -823,23 +849,34 @@ async function saveProfile(event) {
 
   const displayName = elements["profile-display-name"].value.trim();
 
+  if (!displayName) {
+    setMessage("Display name cannot be empty.", true);
+    return;
+  }
+
   try {
     setMessage("Updating profile…");
 
-    const authUpdate = await supabaseClient.auth.updateUser({
-      data: { display_name: displayName }
-    });
+    const { data: authData, error: authError } =
+      await supabaseClient.auth.updateUser({
+        data: { display_name: displayName }
+      });
 
-    if (authUpdate.error) throw authUpdate.error;
+    if (authError) throw authError;
 
-    const profileUpdate = await supabaseClient
+    const { data: profileData, error: profileError } = await supabaseClient
       .from("users")
       .update({ display_name: displayName })
-      .eq("id", state.user.id);
+      .eq("id", state.user.id)
+      .select("display_name, is_deleted")
+      .single();
 
-    if (profileUpdate.error) throw profileUpdate.error;
+    if (profileError) throw profileError;
 
-    state.user = authUpdate.data.user || state.user;
+    state.user = authData.user || state.user;
+    state.profile = profileData;
+
+    renderProfile();
     setMessage("Profile updated.");
   } catch (error) {
     setMessage(error.message || "Unable to update your profile.", true);
