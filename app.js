@@ -667,7 +667,6 @@ function renderAll() {
   renderTransactionsTable();
   renderCategoriesTable();
   renderPaymentMethodsTable();
-  renderCharts();
 }
 
 function resetTransactionForm() {
@@ -760,6 +759,7 @@ async function saveTransaction(event) {
   }
 
   try {
+    setFormBusy(elements["transaction-form"], true);
     setMessage(id ? "Updating transaction…" : "Saving transaction…");
 
     const { error } = id
@@ -772,7 +772,9 @@ async function saveTransaction(event) {
     await refreshDashboard();
   } catch (error) {
     setMessage(error.message || "Unable to save the transaction.", true);
-  }
+  } finally {
+  setFormBusy(elements["transaction-form"], false);
+}
 }
 
 async function saveCategory(event) {
@@ -786,6 +788,7 @@ async function saveCategory(event) {
   };
 
   try {
+    setFormBusy(elements["category-form"], true);
     setMessage(id ? "Updating category…" : "Saving category…");
 
     const { error } = id
@@ -801,7 +804,9 @@ async function saveCategory(event) {
       error.message || "Unable to save the category. Categories used by transactions cannot change type.",
       true
     );
-  }
+  } finally {
+  setFormBusy(elements["category-form"], false);
+}
 }
 
 async function savePaymentMethod(event) {
@@ -811,6 +816,7 @@ async function savePaymentMethod(event) {
   const payload = { name: elements["payment-name"].value.trim() };
 
   try {
+    setFormBusy(elements["payment-method-form"], true);
     setMessage(id ? "Updating payment method…" : "Saving payment method…");
 
     const { error } = id
@@ -823,7 +829,9 @@ async function savePaymentMethod(event) {
     await refreshDashboard();
   } catch (error) {
     setMessage(error.message || "Unable to save the payment method.", true);
-  }
+  } finally {
+  setFormBusy(elements["payment-method-form"], false);
+}
 }
 
 async function deleteRecord(table, id, label) {
@@ -1038,3 +1046,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   switchView(state.activeView);
   await refreshDashboard();
 });
+
+function setFormBusy(form, isBusy) {
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = isBusy;
+  submitButton.textContent = isBusy ? "Saving…" : "Save";
+}
