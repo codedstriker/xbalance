@@ -540,7 +540,39 @@ textarea {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+/* Powered-by attribution */
+.powered-by {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  text-align: center;
+}
 
+.powered-by h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.powered-by-link {
+  display: inline-flex;
+}
+
+.powered-by-logo {
+  display: block;
+  height: auto;
+  width: auto;
+  max-height: 40px;
+  max-width: 140px;
+}
+
+html[data-theme="dark"] .powered-by-logo-github {
+  filter: invert(1);
+}
 .danger-panel {
   border-color: var(--danger);
 }
