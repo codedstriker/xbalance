@@ -263,11 +263,17 @@ async function loadProfile() {
 
   state.profile = data;
 
-  if (data.is_deleted) {
-    await supabaseClient.auth.signOut();
+  if (data.is_deleted === true) {
+    setMessage("This account has been deactivated.", true);
+
+    await supabaseClient.auth.signOut({ scope: "local" });
     window.location.replace(pageUrl("index.html"));
-    return;
+    return false;
   }
+
+  renderProfile();
+  return true;
+}
 
   elements["profile-display-name"].value =
     data.display_name || state.user.user_metadata?.display_name || "";
@@ -324,8 +330,10 @@ async function refreshDashboard() {
   try {
     setMessage("Refreshing data…");
 
+    const isActive = await loadProfile();
+    if (!isActive) return;
+
     await Promise.all([
-      loadProfile(),
       loadCategories(),
       loadPaymentMethods(),
       loadTransactions()
