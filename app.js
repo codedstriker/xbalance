@@ -61,7 +61,7 @@ function cacheElements() {
     "currency-select",
     "settings-currency-select",
     "signout-button",
-    "sidebar-user-name"
+    "sidebar-user-name",
     "sidebar-user-email",
     "dashboard-message",
     "balance-total",
@@ -301,10 +301,7 @@ async function loadProfile() {
   return true;
 }
 
-  elements["profile-display-name"].value =
-    data.display_name || state.user.user_metadata?.display_name || "";
-}
-
+  
 async function signOut() {
   const { error } = await supabaseClient.auth.signOut();
 
