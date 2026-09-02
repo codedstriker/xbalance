@@ -813,15 +813,22 @@ async function savePaymentMethod(event) {
   event.preventDefault();
 
   const id = elements["payment-id"].value;
-  const payload = { name: elements["payment-name"].value.trim() };
+  const payload = {
+    name: elements["payment-name"].value.trim()
+  };
 
   try {
-    setFormBusy(elements["payment-method-form"], true);
+    setFormBusy(elements["payment-form"], true);
     setMessage(id ? "Updating payment method…" : "Saving payment method…");
 
     const { error } = id
-      ? await supabaseClient.from("payment_methods").update(payload).eq("id", id)
-      : await supabaseClient.from("payment_methods").insert(payload);
+      ? await supabaseClient
+          .from("payment_methods")
+          .update(payload)
+          .eq("id", id)
+      : await supabaseClient
+          .from("payment_methods")
+          .insert(payload);
 
     if (error) throw error;
 
@@ -830,8 +837,8 @@ async function savePaymentMethod(event) {
   } catch (error) {
     setMessage(error.message || "Unable to save the payment method.", true);
   } finally {
-  setFormBusy(elements["payment-method-form"], false);
-}
+    setFormBusy(elements["payment-form"], false);
+  }
 }
 
 async function deleteRecord(table, id, label) {
