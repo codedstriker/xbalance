@@ -251,7 +251,10 @@ function getDisplayName() {
 }
 
 function renderProfile() {
-  const displayName = getDisplayName();
+  const displayName =
+    state.profile?.display_name?.trim() ||
+    state.user?.user_metadata?.display_name?.trim() ||
+    "Account";
 
   elements["sidebar-user-name"].textContent = displayName;
   elements["sidebar-user-email"].textContent =
@@ -862,19 +865,19 @@ async function saveProfile(event) {
     if (authError) throw authError;
 
     const { data: profileData, error: profileError } = await supabaseClient
-      .from("users")
-      .update({ display_name: displayName })
-      .eq("id", state.user.id)
-      .select("display_name, is_deleted")
-      .single();
+  .from("users")
+  .update({ display_name: displayName })
+  .eq("id", state.user.id)
+  .select("display_name, is_deleted")
+  .single();
 
-    if (profileError) throw profileError;
+if (profileError) throw profileError;
 
-    state.user = authData.user || state.user;
-    state.profile = profileData;
+state.user = authData.user || state.user;
+state.profile = profileData;
 
-    renderProfile();
-    setMessage("Profile updated.");
+renderProfile();
+setMessage("Profile updated.");
   } catch (error) {
     setMessage(error.message || "Unable to update your profile.", true);
   }
